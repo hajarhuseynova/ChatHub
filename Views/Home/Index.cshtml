@@ -1,0 +1,94 @@
+﻿
+@model List<AppUser>
+
+
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+
+
+<div class="container">
+    <div class="row p-1">
+        <div class="col-1">User</div>
+        <div class="col-5"><input hidden type="text" id="userInput" /></div>
+    </div>
+    <div class="row p-1">
+        <div class="col-1">Message</div>
+        <div class="col-5"><input type="text" class="w-100" id="messageInput" /></div>
+    </div>
+    <div class="row p-1">
+        <div class="col-6 text-end">
+            <input type="button" id="sendButton" value="Send Message" />
+        </div>
+    </div>
+    <div class="row p-1">
+        <div class="col-6">
+            <hr />
+        </div>
+    </div>
+    <div class="row p-1">
+        <div class="col-6">
+            <ul id="messagesList"></ul>
+        </div>
+    </div>
+</div>
+
+<div style="display:flex;justify-content:end"  class="container">
+    <ul>
+       @foreach (var item in Model)
+        {
+            @if (!string.IsNullOrWhiteSpace(item.ConnectionId))
+            {
+                <li class="userchat" style="color:green;cursor:pointer;" id="@item.Id">@item.UserName</li>
+            }
+            else
+            {
+                <li class="userchat" style="color:red;cursor:pointer;" id="@item.Id">@item.UserName</li>
+            }
+        }
+    </ul>
+</div>
+
+<script src="~/js/Signalr/dist/browser/signalr.js"></script>
+<script>
+
+    var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+    connection.start();
+    connection.on("ReceiveMessage", function (user, message) {
+    var li = document.createElement("li");
+    document.getElementById("messagesList").appendChild(li);
+    li.textContent = `${user} says ${message}`;
+     });
+
+         connection.on("Loggin", function (userId) {
+        let user=document.getElementById(userId);
+        user.style.color="green";
+    })
+
+    connection.on("Logout", function (userId) {
+        let user = document.getElementById(userId);
+        user.style.color = "red";
+    })
+
+       document.querySelectorAll(".userchat").forEach(li=>{
+        li.addEventListener("click",()=>{
+            userId=li.getAttribute("id");
+            document.getElementById("userInput").value=userId;
+        })
+            })
+
+
+
+
+document.getElementById("sendButton").addEventListener("click", function (event) {
+    var userId = document.getElementById("userInput").value;
+    var message = document.getElementById("messageInput").value;
+    connection.invoke("SendMessage", userId, message).catch(function (err) {
+        return console.error(err.toString());
+    });
+    event.preventDefault();
+});
+
+</script>

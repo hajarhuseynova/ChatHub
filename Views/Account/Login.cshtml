@@ -1,0 +1,21 @@
+﻿
+@model AppUser
+
+<form class="container" method="post">
+    <div asp-validation-summary=ModelOnly></div>
+    <div class="row p-1">
+        <div class="col-1">UserName</div>
+        <div class="col-5"><input type="text" asp-for="UserName" /></div>
+    </div>
+    <div class="row p-1">
+        <div class="col-1">Password</div>
+        <div class="col-5"><input type="text" asp-for="PasswordHash" /></div>
+    </div>
+    <div class="row p-1">
+        <div class="col-6 text-end">
+            <input type="submit" id="sendButton" value="Login" />
+        </div>
+    </div>
+  
+</form>
+
